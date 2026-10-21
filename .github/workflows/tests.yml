@@ -13,6 +13,10 @@ jobs:
   cask:
     runs-on: macos-26
     timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        cask: [notcholino, splash]
     steps:
       - uses: actions/checkout@v7
-      - run: ./scripts/check-cask.sh
+      - run: ./scripts/check-cask.sh ${{ matrix.cask }}

@@ -1,0 +1,53 @@
+name: Update the Splash cask
+
+# Looks for a new Splash release every hour (and on demand), updates the version and the checksum,
+# checks the result against the real DMG, and only then commits it.
+on:
+  schedule:
+    - cron: "47 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: macos-26
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Find the newest release of the app
+        id: latest
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # App releases are tagged v0.x.y-alpha; the plugins have other tags
+          tag=$(gh api "repos/Peppe37/Splash/releases?per_page=30" \
+            --jq '[.[] | select(.draft == false and (.tag_name | test("^v[0-9]+\\.[0-9]+\\.[0-9]+(-alpha)?$")))][0].tag_name')
+          [ -n "$tag" ] || { echo "no release found"; exit 1; }
+          echo "version=${tag#v}" >> "$GITHUB_OUTPUT"
+
+      - name: Update the Splash cask if it is behind
+        id: update
+        run: |
+          current=$(sed -n 's/^  version "\(.*\)"/\1/p' Casks/splash.rb)
+          new="${{ steps.latest.outputs.version }}"
+          if [ "$current" = "$new" ]; then echo "Already at $current"; echo "changed=false" >> "$GITHUB_OUTPUT"; exit 0; fi
+          curl -fsSL -o /tmp/app.dmg "https://github.com/Peppe37/Splash/releases/download/v${new}/Splash-${new}.dmg"
+          sha=$(shasum -a 256 /tmp/app.dmg | cut -d' ' -f1)
+          sed -i '' -e "s/^  version \".*\"/  version \"${new}\"/" -e "s/^  sha256 \".*\"/  sha256 \"${sha}\"/" Casks/splash.rb
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+          echo "Updated $current -> $new"
+
+      - name: Check the cask
+        if: steps.update.outputs.changed == 'true'
+        run: ./scripts/check-cask.sh splash
+
+      - name: Commit
+        if: steps.update.outputs.changed == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -am "splash ${{ steps.latest.outputs.version }}"
+          git push
