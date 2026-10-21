@@ -1,6 +1,6 @@
 cask "splash" do
-  version "0.1.3-alpha"
-  sha256 "57c9c442c0d6435dc9c3dc179710ea4532e6a2eb969624cafff8b1f92f35736f"
+  version "0.1.4-alpha"
+  sha256 "86beea5c11fe67d0b09d102111eec02a7d33de29be9d9d140edcf59f7310e526"
 
   url "https://github.com/Peppe37/Splash/releases/download/v#{version}/Splash-#{version}.dmg"
   name "Splash"
