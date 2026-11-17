@@ -1,6 +1,6 @@
 cask "notcholino" do
-  version "0.28.2-alpha"
-  sha256 "2328f4dbfaf1bb3242a73f65fcaa1f07afddbf9cf7dfce16367483b00e1aeb1d"
+  version "0.1.0-beta"
+  sha256 "fa3ac693311f55180a724550534291d2c201e1905631ee221d0e97a2d1b084fd"
 
   url "https://github.com/Peppe37/Notcholino/releases/download/v#{version}/Notcholino-#{version}.dmg"
   name "Notcholino"
@@ -10,7 +10,7 @@ cask "notcholino" do
   # Every release is a pre-release for now, so GitHub's "latest" is not enough: look at all of them
   livecheck do
     url :url
-    regex(/^v?(\d+(?:\.\d+)+-alpha)$/i)
+    regex(/^v?(\d+(?:\.\d+)+(?:-beta)?)$/i)
     strategy :github_releases do |json, regex|
       json.filter_map do |release|
         next if release["draft"]
@@ -39,7 +39,7 @@ cask "notcholino" do
   ]
 
   caveats <<~EOS
-    Notcholino is an alpha and is not notarized by Apple yet: this cask clears the
+    Notcholino is in beta and is not notarized by Apple yet: this cask clears the
     quarantine flag so it opens normally. Permissions (Calendar, Accessibility...) are asked from the app.
   EOS
 end

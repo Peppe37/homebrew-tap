@@ -36,6 +36,6 @@ trap 'hdiutil detach "$mount" >/dev/null 2>&1 || true; brew untap --force "$scra
 plist="$mount/${name}.app/Contents/Info.plist"
 [ -f "$plist" ] || { echo "no ${name}.app in the DMG"; exit 1; }
 built=$(/usr/libexec/PlistBuddy -c "Print CFBundleShortVersionString" "$plist")
-expected="${version%-alpha}"
+expected="${version%%-*}"
 [ "$built" = "$expected" ] || { echo "the app is version $built, the cask says $version"; exit 1; }
 echo "version $built ok"
