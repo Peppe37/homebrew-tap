@@ -39,7 +39,7 @@ cask "notcholino" do
   ]
 
   caveats <<~EOS
-    Notcholino is in beta and is not notarized by Apple yet: this cask clears the
+    Notcholino is not notarized by Apple yet: this cask clears the
     quarantine flag so it opens normally. Permissions (Calendar, Accessibility...) are asked from the app.
   EOS
 end
